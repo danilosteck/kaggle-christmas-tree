@@ -1,0 +1,5 @@
+pandas
+shapely
+matplotlib
+PyQt5
+kaggle
