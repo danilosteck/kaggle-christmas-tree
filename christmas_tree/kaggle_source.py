@@ -231,8 +231,6 @@ def score_mod(solution: pd.DataFrame, submission: pd.DataFrame, row_id_column_na
         group_score = (Decimal(side_length_scaled) ** 2) / (scale_factor**2) / Decimal(num_trees)
         total_score += group_score
 
-    # return pd.DataFrame([float(total_score),has_intersections, violates_x_bounds, violates_y_bounds],
-    #     columns=['score', 'has_intersections', 'violates_x_bounds', 'violates_y_bounds'])
     has_violations = max(has_intersections, violates_x_bounds, violates_y_bounds)
     return {
         'score':float(total_score),
