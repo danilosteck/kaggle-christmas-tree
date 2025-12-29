@@ -31,6 +31,9 @@ if __name__ == '__main__':
     row_id_column_name = 'id'
     # data = [['002_0', 's-0.5', 's-0.3', 's335'], ['002_1', 's0.49', 's0.21', 's155']]
     data = [
+        ['001_0','s-0.0','s-.0','s0.0'],
+        ['002_0','s-0.0','s-.0','s90.0'],
+        ['002_1','s0.202736','s-0.511271','s90.0'],
         ['003_0','s-0.0','s-.0','s90.0'],
         ['003_1','s0.202736','s-0.511271','s90.0'],
         ['003_2','s-0.8806','s-0.29','s-90.0']
@@ -40,6 +43,6 @@ if __name__ == '__main__':
 
     submission = pd.DataFrame(columns=['id', 'x', 'y', 'deg'], data=data)
     solution = submission[['id']].copy()
-    # score(solution, submission, row_id_column_name)
+    score(solution, submission, row_id_column_name)
     score_mod(solution, submission, row_id_column_name)
-    # plot_trees(submission)
+    plot_trees(submission)
