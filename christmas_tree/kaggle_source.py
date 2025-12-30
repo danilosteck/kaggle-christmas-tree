@@ -151,7 +151,7 @@ def score(solution: pd.DataFrame, submission: pd.DataFrame, row_id_column_name: 
     return float(total_score)
 
 
-def score_mod(solution: pd.DataFrame, submission: pd.DataFrame, row_id_column_name: str) -> dict:
+def score_mod(submission: pd.DataFrame, row_id_column_name: str=None, solution: pd.DataFrame=None) -> dict:
     """
     For each n-tree configuration, the metric calculates the bounding square
     volume divided by n, summed across all configurations.
@@ -168,6 +168,13 @@ def score_mod(solution: pd.DataFrame, submission: pd.DataFrame, row_id_column_na
     >>> score(solution, submission, row_id_column_name)
     0.877038143325...
     """
+    if row_id_column_name is None:
+        row_id_column_name = 'id'
+
+    if solution is None:
+        solution = submission[[row_id_column_name]].copy()
+
+
     violates_x_bounds = 0
     violates_y_bounds = 0
     has_intersections = 0

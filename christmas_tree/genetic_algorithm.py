@@ -1,6 +1,11 @@
 import numpy as np
 import random
 from typing import List, Tuple, Dict, Callable
+from christmas_tree.utils import df_to_kaggle_output
+import pandas as pd
+
+## TO-DO's
+# [ ] Testar se o algoritmo roda com a função christmas_tree.kaggle_source.score_mod. O campo has_violations informa se é uma combinação válida
 
 class GeneticAlgorithm:
     def __init__(self, 
@@ -10,7 +15,9 @@ class GeneticAlgorithm:
                  generations: int = 100,
                  mutation_rate: float = 0.1,
                  crossover_rate: float = 0.8,
-                 evaluate_func: Callable = None):
+                 evaluate_func: Callable = None,
+                 print_generations: int=20 # Print results after each X generations - default 20 generations
+                ):
         self.num_shapes = num_shapes
         self.bounds_ranges = bounds_ranges  # [(min_x,max_x), (min_y,max_y), (min_deg,max_deg)]
         self.pop_size = population_size
@@ -23,6 +30,10 @@ class GeneticAlgorithm:
         self.population = self._initialize_population()
         self.best_individual = None
         self.best_score = float('inf')
+        self.best_valid_individual = None
+        self.best_valid_score = float('inf')
+
+        self.print_generations = print_generations
         
     def _initialize_population(self) -> List[List[Tuple[float, float, float]]]:
         population = []
@@ -37,15 +48,23 @@ class GeneticAlgorithm:
         return population
     
     def _fitness(self, individual: List[Tuple[float, float, float]]) -> Dict:
-        return self.evaluate(individual)
+        individual_formatted = df_to_kaggle_output(pd.DataFrame(individual, columns=['x', 'y', 'deg']))
+        result = self.evaluate(individual_formatted)
+        result['is_valid'] = not result['has_violations']
+        return result
     
     def _selection(self, population: List[List[Tuple[float, float, float]]]) -> List[List[Tuple[float, float, float]]]:
-        """Tournament selection."""
+        """Tournament selection prioritizing valid solutions."""
         tournament_size = 3
         selected = []
         for _ in range(self.pop_size):
             tournament = random.sample(population, tournament_size)
-            winner = min(tournament, key=lambda ind: self._fitness(ind)['score'])
+            # Prioritize valid solutions, then best score
+            valid_candidates = [ind for ind in tournament if self._fitness(ind)['is_valid']]
+            if valid_candidates:
+                winner = min(valid_candidates, key=lambda ind: self._fitness(ind)['score'])
+            else:
+                winner = min(tournament, key=lambda ind: self._fitness(ind)['score'])
             selected.append(winner)
         return selected
     
@@ -79,10 +98,16 @@ class GeneticAlgorithm:
             fitness_scores = [(i, self._fitness(ind)) for i, ind in enumerate(self.population)]
             
             # Update best
+            # for idx, result in fitness_scores:
+                # if result['score'] < self.best_score:
+                #     self.best_score = result['score']
+                #     self.best_individual = self.population[idx][:]
+
             for idx, result in fitness_scores:
-                if result['score'] < self.best_score:
-                    self.best_score = result['score']
-                    self.best_individual = self.population[idx][:]
+                if (result['is_valid'] and 
+                    (result['score'] < self.best_valid_score or self.best_valid_individual is None)):
+                    self.best_valid_score = result['score']
+                    self.best_valid_individual = self.population[idx][:]
             
             # Selection
             selected = self._selection(self.population)
@@ -100,17 +125,39 @@ class GeneticAlgorithm:
             
             self.population = new_population[:self.pop_size]
             
-            if gen % 20 == 0:
-                print(f"Gen {gen}: Best score = {self.best_score:.2f}")
-        
+            if gen % self.print_generations == 0:
+                # print(f"Gen {gen}: Best score = {self.best_score:.2f}")
+                print(f"Gen {gen}: Best valid score = {self.best_valid_score:.2f} | Current score: {result['score']}, Is valid? :{result['is_valid']}")
+
         # Final evaluation of best individual
-        best_result = self._fitness(self.best_individual)
+        # best_result = self._fitness(self.best_valid_score)
         return {
-            'best_individual': self.best_individual,
-            'best_score': self.best_score,
-            **best_result
+            'best_individual': self.best_valid_individual,
+            'best_score': self.best_valid_score,
+            **self._fitness(self.best_valid_individual)
         }
 
 # Usage example:
 # ga = GeneticAlgorithm(num_shapes=3, bounds_ranges=[(0,100),(0,100),(0,360)], evaluate_func=your_evaluate_function)
 # result = ga.run()
+
+if __name__ == '__main__':
+
+    # Teste de inicialização da classe GeneticAlgorithm
+    GA = GeneticAlgorithm(
+        num_shapes = 2,
+        bounds_ranges = [(-100,100), (-100,100), (-180,180)],
+        population_size = 50,
+        generations = 100,
+        mutation_rate = 0.1,
+        crossover_rate = 0.8,
+        evaluate_func = score_mod
+    )
+
+    # Testando se as funções de suporte da classe funcionam
+    init_pop = GA._initialize_population()
+    teste_fitness = GA._fitness(init_pop[2])
+    teste_selection = GA._selection(init_pop)
+
+    # Testando a função final da classe GA
+    result = GA.run()

@@ -44,5 +44,5 @@ if __name__ == '__main__':
     submission = pd.DataFrame(columns=['id', 'x', 'y', 'deg'], data=data)
     solution = submission[['id']].copy()
     score(solution, submission, row_id_column_name)
-    score_mod(solution, submission, row_id_column_name)
+    score_mod(submission)
     plot_trees(submission)
