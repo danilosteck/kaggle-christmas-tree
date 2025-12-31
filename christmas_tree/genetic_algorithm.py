@@ -108,6 +108,12 @@ class GeneticAlgorithm:
                     (result['score'] < self.best_valid_score or self.best_valid_individual is None)):
                     self.best_valid_score = result['score']
                     self.best_valid_individual = self.population[idx][:]
+                    self.bounds_ranges = [
+                        [(pd.DataFrame(self.best_valid_individual)[0].min()), (pd.DataFrame(self.best_valid_individual)[0].max())],
+                        [(pd.DataFrame(self.best_valid_individual)[1].min()), (pd.DataFrame(self.best_valid_individual)[1].max())],
+                        [-180,180]
+                    ]
+
             
             # Selection
             selected = self._selection(self.population)
@@ -127,7 +133,7 @@ class GeneticAlgorithm:
             
             if gen % self.print_generations == 0:
                 # print(f"Gen {gen}: Best score = {self.best_score:.2f}")
-                print(f"Gen {gen}: Best valid score = {self.best_valid_score:.2f} | Current score: {result['score']}, Is valid? :{result['is_valid']}")
+                print(f"Gen {gen}: Best valid score = {self.best_valid_score:.2f} | Current bounds: {self.bounds_ranges}")
 
         # Final evaluation of best individual
         # best_result = self._fitness(self.best_valid_score)
@@ -146,12 +152,13 @@ if __name__ == '__main__':
     # Teste de inicialização da classe GeneticAlgorithm
     GA = GeneticAlgorithm(
         num_shapes = 2,
-        bounds_ranges = [(-100,100), (-100,100), (-180,180)],
-        population_size = 50,
-        generations = 100,
-        mutation_rate = 0.1,
-        crossover_rate = 0.8,
-        evaluate_func = score_mod
+        bounds_ranges = [(-0.5,0.5), (-0.5,0.5), (-180,180)],
+        population_size = 40,
+        generations = 50,
+        mutation_rate = 0.,
+        crossover_rate = 0.9,
+        evaluate_func = score_mod,
+        print_generations=1
     )
 
     # Testando se as funções de suporte da classe funcionam
@@ -161,3 +168,4 @@ if __name__ == '__main__':
 
     # Testando a função final da classe GA
     result = GA.run()
+    plot_trees(df_to_kaggle_output(pd.DataFrame(result['best_individual'], columns=['x','y','deg'])))
