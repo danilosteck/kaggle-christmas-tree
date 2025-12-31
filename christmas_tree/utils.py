@@ -1,6 +1,9 @@
 import pandas as pd
 from christmas_tree.kaggle_source import score_mod
 
+def tuple_to_kaggle_output(tup:tuple) -> pd.DataFrame:
+    return df_to_kaggle_output(pd.DataFrame(tup, columns = ['x','y','deg']))
+
 def df_to_kaggle_output(df:pd.DataFrame) -> pd.DataFrame:
     new_df = df.copy()
     if 'id' not in df.columns:

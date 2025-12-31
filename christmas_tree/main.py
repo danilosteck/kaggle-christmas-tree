@@ -4,30 +4,39 @@ from christmas_tree.genetic_algorithm import GeneticAlgorithm
 from christmas_tree.utils import df_to_kaggle_output
 from datetime import datetime, timedelta
 import pandas as pd
+from christmas_tree.simulated_annealing import simulated_annealing
+
+
+# Implementação conjunta GA + SA
 
 GA = GeneticAlgorithm(
-    num_shapes = 2,
+    num_shapes = 10,
     bounds_ranges = [(-100,100), (-100,100), (-180,180)],
-    population_size = 200,
-    generations = 100,
-    mutation_rate = 0.1,
-    crossover_rate = 0.9,
+    population_size = 30,
+    generations = 70,
+    mutation_rate = 0.3,
+    crossover_rate = 0.7,
     evaluate_func = score_mod,
     print_generations=1
 )
 
 st = datetime.now()
-result = GA.run()
+result_ga = GA.run()
 et = datetime.now()
 elapsed_time = et-st
-print(f'Tempo total de execução: {elapsed_time.seconds} s')
+print(f'Tempo total de execução: {elapsed_time.seconds} s | Melhor indivíduo: {result_ga['best_individual']}')
 
-plot_trees(df_to_kaggle_output(pd.DataFrame(result['best_individual'], columns=['x','y','deg'])))
+result_sa = simulated_annealing(
+        initial_solution=result_ga['best_individual'], 
+        bounds_ranges=[
+            (pd.DataFrame(result_ga['best_individual'])[0].min(),pd.DataFrame(result_ga['best_individual'])[0].max()),
+            (pd.DataFrame(result_ga['best_individual'])[1].min(),pd.DataFrame(result_ga['best_individual'])[1].max()),
+            (-180,180)], 
+        evaluate_func=score_mod, 
+        iterations=5000, 
+        initial_temp=1000, 
+        cooling_rate=0.9999
+        )
 
-# Referência para 2 árvores: ~0.75 de Score, sem violações
-data = [
-    ['002_0','s-0.625','s-.175','s-90.0'],
-    ['002_1','s0.202736','s-0.511271','s90.0'],
-]
-score_mod((pd.DataFrame(data, columns=['id','x','y','deg'])))
-plot_trees(pd.DataFrame(data, columns=['id','x','y','deg']))
+plot_trees(tuple_to_kaggle_output(result_ga['best_individual']))
+plot_trees(tuple_to_kaggle_output(result_sa['best_solution']))

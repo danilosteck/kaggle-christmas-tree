@@ -244,5 +244,6 @@ def score_mod(submission: pd.DataFrame, row_id_column_name: str=None, solution: 
         'has_intersections': has_intersections, 
         'violates_x_bounds': violates_x_bounds, 
         'violates_y_bounds': violates_y_bounds,
-        'has_violations': has_violations
+        'has_violations': has_violations,
+        'is_valid': not has_violations
     }
