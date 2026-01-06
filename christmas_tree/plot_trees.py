@@ -7,7 +7,9 @@ import os
 class printError(Exception):
     pass
 
-def plot_trees(df):
+def plot_trees(df, filename=None):
+    plt.figure()  # Create a new figure at the start
+    
     new_df = pd.DataFrame()
     for c in ['x','y','deg']:
         if not df[c].str.startswith('s').all():
@@ -17,8 +19,14 @@ def plot_trees(df):
 
     for _, row  in new_df.iterrows():
         ct = ChristmasTree(row['x'], row['y'], row['deg'])
-        plot_polygon(ct.polygon, facecolor="lightblue", edgecolor="red")
-    plt.show()
+        plot_polygon(ct.polygon, facecolor="lightblue", edgecolor="blue")
+    
+    if filename:
+        plt.savefig(filename)
+        plt.close()  # Close the figure instead of just clearing
+    else:
+        plt.show()
+        plt.close()  # Close after showing
 
 if __name__ == '__main__':
     # df = pd.DataFrame([
@@ -45,4 +53,4 @@ if __name__ == '__main__':
     solution = submission[['id']].copy()
     score(solution, submission, row_id_column_name)
     score_mod(submission)
-    plot_trees(submission)
+    plt = plot_trees(submission)
