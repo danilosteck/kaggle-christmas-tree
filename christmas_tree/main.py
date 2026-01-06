@@ -9,10 +9,20 @@ from christmas_tree.swarm_optimization import ParticleSwarmOptimization
 import os
 import logging
 
+
+if not os.path.exists(os.path.join('.','christmas_tree','plots')):
+    os.mkdir(os.path.join('.','christmas_tree','plots'))
+
+outputs_path = os.path.join('.','christmas_tree','outputs')
+if not os.path.exists(outputs_path):
+    os.mkdir(outputs_path)
+
+logs_path = os.path.join('.','christmas_tree','logs')
+if not os.path.exists(logs_path):
+    os.mkdir(logs_path)
+
 # Configuração para saída em um arquivo
-logging.basicConfig(filename=f'results_main_{datetime.now().strftime('%Y%m%d')}.log', level=logging.INFO, format='%(asctime)s; %(message)s')
-
-
+logging.basicConfig(filename=os.path.join(logs_path,f'results_main_{datetime.now().strftime('%Y%m%d')}.log'), level=logging.INFO, format='%(asctime)s; %(message)s')
 
 # # Implementação conjunta GA + SA
 
@@ -89,8 +99,7 @@ def GASA(n_start, n_end):
         
 def pso_compact():
     plot_path = os.path.join('christmas_tree','plots', datetime.now().strftime("%Y%m%d"))
-    if not os.path.exists(plot_path):
-        os.mkdir(plot_path)
+    
 
     data = []
     total_score = 0
@@ -115,11 +124,11 @@ def pso_compact():
             print_generations=10 # Print results after each X generations - default 20 generations
         )
 
-        pso_result = pso.run()
-
         compact_population_result = tuple_to_kaggle_output(initialize_compact_population(num_shapes,.715,.79,1. ))
         compact_result = score_mod(compact_population_result)
-        
+
+        if i <= 15:
+            pso_result = pso.run()
 
         if i <= 15 and pso_result['score'] < compact_result['score']:
             consolidated_result = pso_result
@@ -145,4 +154,5 @@ def pso_compact():
     return output_df, total_score, data
 
 if __name__ == '__main__':
-    df, score, data  = pso_compact()
+    # df, score, data  = pso_compact()
+    df.to_csv(os.path.join(outputs_path,f'NEO_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'))

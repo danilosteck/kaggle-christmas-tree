@@ -4,8 +4,12 @@ from typing import List, Tuple, Dict, Callable
 from christmas_tree.utils import initialize_compact_population
 import logging
 
+logs_path = os.path.join('.','christmas_tree','logs')
+if not os.path.exists(logs_path):
+    os.mkdir(logs_path)
+
 # Configuração para saída em um arquivo
-logging.basicConfig(filename='results_swarm.log', level=logging.INFO, format='%(asctime)s; %(message)s')
+logging.basicConfig(filename=os.path.join(logs_path,'results_swarm.log'), level=logging.INFO, format='%(asctime)s; %(message)s')
 # Mensagem de log
 
 class ParticleSwarmOptimization:
