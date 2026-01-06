@@ -3,6 +3,7 @@ import random
 from typing import List, Tuple, Dict, Callable
 from christmas_tree.utils import initialize_compact_population
 import logging
+import os
 
 logs_path = os.path.join('.','christmas_tree','logs')
 if not os.path.exists(logs_path):

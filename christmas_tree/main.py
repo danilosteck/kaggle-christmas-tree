@@ -24,44 +24,7 @@ if not os.path.exists(logs_path):
 # Configuração para saída em um arquivo
 logging.basicConfig(filename=os.path.join(logs_path,f'results_main_{datetime.now().strftime('%Y%m%d')}.log'), level=logging.INFO, format='%(asctime)s; %(message)s')
 
-# # Implementação conjunta GA + SA
-
-# GA = GeneticAlgorithm(
-#     num_shapes = 10,
-#     bounds_ranges = [(-100,100), (-100,100), (-180,180)],
-#     population_size = 30,
-#     generations = 70,
-#     mutation_rate = 0.3,
-#     crossover_rate = 0.7,
-#     evaluate_func = score_mod,
-#     print_generations=1
-# )
-
-# st = datetime.now()
-# result_ga = GA.run()
-# et = datetime.now()
-# elapsed_time = et-st
-# print(f'Tempo total de execução: {elapsed_time.seconds} s | Melhor indivíduo: {result_ga['best_individual']}')
-
-# result_sa = simulated_annealing(
-#         initial_solution=result_ga['best_individual'], 
-#         bounds_ranges=[
-#             (pd.DataFrame(result_ga['best_individual'])[0].min(),pd.DataFrame(result_ga['best_individual'])[0].max()),
-#             (pd.DataFrame(result_ga['best_individual'])[1].min(),pd.DataFrame(result_ga['best_individual'])[1].max()),
-#             (-180,180)], 
-#         evaluate_func=score_mod, 
-#         iterations=5000, 
-#         initial_temp=20000, 
-#         cooling_rate=0.99
-#         )
-
-# plot_trees(tuple_to_kaggle_output(result_ga['best_individual']))
-# plot_trees(tuple_to_kaggle_output(result_sa['best_solution']))
-
-
-# n_start = 1
-# n_end = 10
-
+# Combinação de Genetic Algorithm (coarse optimization) with Simulated Annealing (fine optimization)
 def GASA(n_start, n_end):
     for i in range(n_start, n_end+1):
         GA = GeneticAlgorithm(
@@ -154,5 +117,5 @@ def pso_compact():
     return output_df, total_score, data
 
 if __name__ == '__main__':
-    # df, score, data  = pso_compact()
+    df, score, data  = pso_compact()
     df.to_csv(os.path.join(outputs_path,f'NEO_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'))
